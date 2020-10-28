@@ -1,5 +1,6 @@
 import random
 import os,sys
+sys.setrecursionlimit(15000)
 c_max = 2000
 def creaSudoku(dimension):
     board = []
@@ -50,6 +51,17 @@ def check(sudoku):
                 if sudoku[j][i]==sudoku[k][i] and sudoku[j][i]!=0:
                     #print(str(sudoku[j][i])+" = "+ str(sudoku[k][i]))
                     return False
+    #Controlla celle
+    n = [0,0,0,0,0,0,0,0,0]
+    for l in [0,3,6]:
+        for k in [0,3,6]:
+            n = [0,0,0,0,0,0,0,0,0]
+            for i in len(sudoku):
+                for j in len(sudoku):
+                    if n[sudoku[i][j]+1]!=0:
+                        n[sudoku[i][j]+1]=sudoku[i][j]
+                    else:
+                        return False
     return True
     
 def randomFill(sudoku,n):
@@ -161,25 +173,90 @@ def generazioneSudokuCompleto():
     sudoku = creaSudoku(9)
     num = [1,2,3,4,5,6,7,8,9]
     print(len(num))
-    while(True):
-        sudoku = azzera(sudoku)
-        for i in range(0,len(sudoku)):
-            num = [1,2,3,4,5,6,7,8,9]
-            for j in range(0,len(sudoku)):
-                while True:
-                    r = random.randint(0,len(num))
-                    n = num[r]
+    #while(True):
+    sudoku = azzera(sudoku)
+    for i in range(0,len(sudoku)):
+        num = [1,2,3,4,5,6,7,8,9]
+        for j in range(0,len(sudoku)):
+            while True:
+                r = random.randint(0,len(num)-1)
+                n = num[r]  
+                if findNumInColumn(sudoku,j,n) and findNumInRow(sudoku,i,n):
+                    sudoku[i][j] = n
                     num = num.remove(n)
-                    if findNumInColumn(sudoku,j,n) and findNumInRow(sudoku,i,n):
-                        sudoku[i][j] = n
-                        break
-                    stampaSudoku(sudoku)
-        if checkFull(sudoku): 
-            if check(sudoku):
-                return sudoku
+                    break
+                stampaSudoku(sudoku)
+    if checkFull(sudoku): 
+        if check(sudoku):
+            return sudoku
+def findInArray(array,n):
+    for i in range(0,len(array)):
+        if array[i]==n:
+            return True
+    return False
+
+def getPossibleNumber(sudoku,row,column):
+    n = [1,2,3,4,5,6,7,8,9]
+    estratti = []
+    for i in range(0,len(sudoku)):
+        if sudoku[row][i]!=0:
+            if not findInArray(estratti,sudoku[row][i]):
+                estratti.append([sudoku[row][i]])
+                
+                if findInArray(n,sudoku[row][i]):
+                    n.remove(sudoku[row][i])
+
+    for i in range(0,len(sudoku)):
+        if sudoku[i][column]!=0:
+            if not findInArray(estratti,sudoku[row][i]):
+                estratti.append([sudoku[i][column]])
+                if findInArray(estratti,sudoku[row][i]):
+                    n.remove(sudoku[i][column])
+    l=0
+    k =0
+    #Cerca la cella di appartenenza
+    if row in range(0,2):
+        k = 0
+    if row in range(3,5):
+        k = 3
+    if row in range(6,8):
+        k = 6
+    if column in range(0,2):
+        l = 0
+    if column in range(3,5):
+        l = 3
+    if column in range(6,8):
+        l = 6 
+    #Controllo celle
+    for i in range(0,2):
+        for j in range(0,2):
+            if sudoku[k+i][l+j]!=0:
+                if not findInArray(estratti,sudoku[k+i][l+j]):
+                    estratti.append(sudoku[k+i][l+j])
+                    
+                    if findInArray(n,sudoku[k+i][l+j]):
+                        n.remove(sudoku[k+i][l+j])
+    print("column = "+str(column)+"   row =   "+str(row))
+    print(n)
+    return n
+
+
+def backTrack(sudoku):
+    s = sudoku
+    for i in range(0,len(s)):
+        for j in range(0,len(s)):
+            if s[i][j]==0:
+                n = getPossibleNumber(s,i,j)
+                if len(n)==0:
+                    return backTrack(sudoku)
+                else:
+                    s[i][j]= n[random.randint(0,len(n)-1)]
+                    stampaSudoku(s)
+
+    return s
 
 os.system('cls')
 board = creaSudoku(9)
-board = generazioneSudokuCompleto()
+board = backTrack(board)
 stampaSudoku(board)
 #stampaSudoku(risolviSpazi(board))
