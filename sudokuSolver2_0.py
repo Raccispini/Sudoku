@@ -79,25 +79,19 @@ def backTrack(sudoku):
             sudoku[row][col]=0
     return False
 
-def deleteSomeCells(s):
-    n = random.randint(30,70)
+def generateSudoku(sudoku):
+    n = random.randint(1,20)
     for i in range(0,n):
-        row = random.randint(0,8)
-        col = random.randint(0,8)
-        s[row][col]=0
-    return s
+        while True:
+            row = random.randint(0,8)
+            col = random.randint(0,8)
+            val = random.randint(1,9)
+            if check(sudoku,val,row,col):
+                sudoku[row][col]=val
+                break
+    return sudoku
 
 os.system('cls')
-sudoku =[[5,3,0,0,7,0,0,0,0],
-        [6,0,0,1,9,5,0,0,0],
-        [0,9,8,0,0,0,0,6,0],
-        [8,0,0,0,6,0,0,0,3],
-        [4,0,0,8,0,3,0,0,1],
-        [7,0,0,0,2,0,0,0,6],
-        [0,6,0,0,0,0,2,8,0],
-        [0,0,0,4,1,9,0,0,5],
-        [0,0,0,0,8,0,0,7,9]]
-
-backTrack(sudoku)
-#sudoku = deleteSomeCells(sudoku)
-stampaSudoku(sudoku)
+board = generateSudoku(creaSudoku())
+backTrack(board)
+stampaSudoku(board)
