@@ -80,7 +80,7 @@ def backTrack(sudoku):
     return False
 
 def generateSudoku(sudoku):
-    n = random.randint(1,20)
+    n = random.randint(10,30)
     for i in range(0,n):
         while True:
             row = random.randint(0,8)
